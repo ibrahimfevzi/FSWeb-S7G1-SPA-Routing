@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 export default function Film(props) {
+  const history = useHistory();
   const [movie, setMovie] = useState();
 
-  let id = 1;
+  // let id = 3;
+  // App.js'den <Route path="/movies/:id">
+  let { id } = useParams();
+  const { save } = props;
   // URL'den alınan :id parametresini bu değişkene aktarın
 
   useEffect(() => {
     axios
       .get(`http://localhost:5001/api/filmler/${id}`) // Bu uç noktayı Postman'le çalışın
       .then((response) => {
-        setMovie(response.data);
         // Bu kısmı log statementlarıyla çalışın
         // ve burdan gelen response'u 'movie' e aktarın
+        console.log("Film.js", response.data);
+        setMovie(response.data);
       })
       .catch((error) => {
         console.error(error);
       });
+    // Bu effect her `id ` değiştiğinde çalışmalı
+    // Bunu nasıl gerçekleştirebiliriz?
   }, [id]);
 
   // Yalnızca esnek görevlere geçtiğinizde burdaki yorum etiketini kaldırın
@@ -27,8 +35,14 @@ export default function Film(props) {
     return <div>Film bilgisi yükleniyor...</div>;
   }
 
-  const { title, director, metascore, stars } = movie;
+  const saveAction = () => {
+    save(id);
+    history.push("/");
+  };
 
+  const { title, director, metascore, stars } = movie;
+  // const title = movie.title;
+  // const director = movie.director;
   return (
     <div className="save-wrapper">
       <div className="movie-card">
@@ -47,7 +61,9 @@ export default function Film(props) {
           </div>
         ))}
       </div>
-      <div className="save-button">Kaydet</div>
+      <div onClick={() => saveAction()} className="save-button">
+        Kaydet
+      </div>
     </div>
   );
 }
